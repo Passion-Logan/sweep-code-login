@@ -9,5 +9,34 @@
 </head>
 <body>
 
+<div>
+    <div class="title">请扫码登录</div>
+    <img th:src="${qrcode}"/>
+    <div id="state" style="display: none"></div>
+
+    <script th:inline="javascript">
+        const stateTag = document.getElementById('state')
+
+        const subscribeUrl = [[${subscribeUrl}]]
+        const source = new EventSource(subscribeUrl)
+        source.onmessage = (ev) => {
+            text = ev.data
+            if (text == 'scan') {
+                stateTag.innerText = '已扫码'
+                stateTag.style.display = 'block'
+            } else if (text.startsWith('login#')) {
+                const cookie = text.substring(6)
+                document.cookie = cookie
+                window.location.href = [[${redirect}]]
+                source.close()
+            }
+        }
+
+        source.onopen = () => {
+            console.log("开始订阅")
+        }
+    </script>
+</div>
+
 </body>
 </html>
