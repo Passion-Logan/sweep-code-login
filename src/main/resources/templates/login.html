@@ -17,7 +17,7 @@
     <script th:inline="javascript">
         const stateTag = document.getElementById('state')
 
-        const subscribeUrl = [[${subscribeUrl}]]
+        const subscribeUrl = [[${subscribe}]]
         const source = new EventSource(subscribeUrl)
         source.onmessage = (ev) => {
             text = ev.data

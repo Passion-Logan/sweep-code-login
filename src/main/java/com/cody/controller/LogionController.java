@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.theme.CookieThemeResolver;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.sound.sampled.Port;
+import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -84,7 +84,7 @@ public class LogionController {
     }
 
     @GetMapping("scan")
-    public String scan(Model model, HttpServletRequest request) throws IOException {
+    public String scan(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         SseEmitter sseEmitter = cache.get(request.getParameter("id"));
         if (sseEmitter != null) {
@@ -101,12 +101,15 @@ public class LogionController {
 
     @ResponseBody
     @GetMapping(path = "accept")
-    public String accept(String id, String token) throws IOException {
+    public String accept(String id, String token, HttpServletResponse response) throws IOException {
         SseEmitter sseEmitter = cache.get(id);
         if (sseEmitter != null) {
             // 发送登录成功事件，并携带上用户的token，我们这里用cookie来保存token
             sseEmitter.send("login#qrlogin=" + token);
             sseEmitter.complete();
+            // 模拟返回cookie
+            Cookie cookie = new Cookie("qrlogin", token);
+            response.addCookie(cookie);
             cache.remove(id);
         }
         return "登陆成功：" + token;
@@ -116,11 +119,12 @@ public class LogionController {
     @ResponseBody
     public String home(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
+
         if (cookies == null || cookies.length == 0) {
             return "未登录!";
         }
 
-        Optional<Cookie> cookie = Stream.of(cookies).filter(s -> s.getName().equalsIgnoreCase("qrlogin")).findFirst();
-        return cookie.map(cookie1 -> "欢迎进入首页：" + cookie1.getValue()).orElse("未登录!");
+        Optional<Cookie> cookie2 = Stream.of(cookies).filter(s -> s.getName().equalsIgnoreCase("qrlogin")).findFirst();
+        return cookie2.map(cookie1 -> "欢迎进入首页：" + cookie1.getValue()).orElse("未登录!");
     }
 }
