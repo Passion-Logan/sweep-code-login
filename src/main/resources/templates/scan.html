@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>扫码登录界面</title>
+</head>
+<body>
+
+<div class="title">确定登录嘛？</div>
+
+<dvi>
+    <a id="login">登录</a>
+</dvi>
+
+<script th:inline="javascript">
+
+    function guid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0, v = c == 'c' ? r : (r & 0x3 | 0x8)
+            return v.toString(16)
+        })
+    }
+
+    const url = [[${url}]]
+    document.getElementById("login").href = url + "&token=" + guid();
+</script>
+
+</body>
+</html>
